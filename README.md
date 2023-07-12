@@ -4,6 +4,16 @@ Search github programmatically.
 
 ## Developing
 
+### Prerequisites
+
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Python](https://www.python.org/downloads/)
+- [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html)
+
+You will also need a a github personal access token. You can create one [with the instructions here](https://docs.github.com/en/rest/quickstart?apiVersion=2022-11-28&tool=curl). Save this token and do not save it in a public place.
+
+### Building and Running
+
 Create a new virtual environment and install the requirements:
 
 ```bash
@@ -14,10 +24,10 @@ pip install maturin
 
 #### Rust Library
 
-Build the rust library:
+Test the rust library:
 
 ```bash
-cargo build
+cargo test
 ```
 
 #### Python Library
