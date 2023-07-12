@@ -1,15 +1,21 @@
-use super::{query::GithubSearchQuery, schema::CodeSearchResponse};
+use pyo3::{pyclass, pymethods, PyAny, PyResult, Python};
+
+use super::{errors::GithubClientError, query::GithubSearchQuery, schema::CodeSearchResponse};
 
 const GITHUB_API_URL: &'static str = "https://api.github.com";
 
 /// A client for interacting with the GitHub API.
+#[derive(Clone)]
+#[pyclass]
 pub struct GithubClient {
     client: reqwest::Client,
     token: String,
 }
 
+#[pymethods]
 impl GithubClient {
     /// Create a new GithubClient with the given api token
+    #[new]
     pub fn new(token: String) -> Self {
         Self {
             client: reqwest::Client::new(),
@@ -18,19 +24,36 @@ impl GithubClient {
     }
 
     /// Search code on GitHub with the given query
+    pub fn search_code0<'py>(&self, py: Python<'py>, term: String) -> PyResult<&'py PyAny> {
+        let query = GithubSearchQuery::new(term);
+        let other = self.clone();
+
+        pyo3_asyncio::tokio::future_into_py(py, async move {
+            other.search_code(&query).await.map_err(|e| e.into())
+        })
+    }
+}
+
+impl GithubClient {
+    /// Search code on GitHub with the given query
     pub async fn search_code(
         &self,
         query: &GithubSearchQuery,
-    ) -> Result<CodeSearchResponse, reqwest::Error> {
+    ) -> Result<CodeSearchResponse, GithubClientError> {
         let compiled_query = query.build();
-        let url = format!("{}/search/code?q={compiled_query}", GITHUB_API_URL);
-        self.client
+        let url = format!("{GITHUB_API_URL}/search/code?q={compiled_query}");
+        
+        let response = self.client
             .get(&url)
             .bearer_auth(&self.token)
-            .header("accept", "application/vnd.github+json")
+            .header("Accept", "application/vnd.github.text-match+json")
+            .header("User-Agent", "ghsrch")
             .send()
-            .await?
-            .json::<CodeSearchResponse>()
             .await
+            .map_err(|e| GithubClientError::from(e))?;
+    
+         response.json::<CodeSearchResponse>()
+           .await
+           .map_err(|e| GithubClientError::from(e))
     }
 }
