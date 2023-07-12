@@ -1,4 +1,7 @@
+use pyo3::{pyclass, pymethods};
+
 /// How to deal with forks in search results
+#[derive(Clone)]
 pub enum ForkSearchBehavior {
     /// Do not include forks in search results
     NoForks,
@@ -22,6 +25,8 @@ impl From<&ForkSearchBehavior> for String {
 }
 
 /// Constructs a github search query string from the given parameters
+#[pyclass]
+#[derive(Clone)]
 pub struct GithubSearchQuery {
     /// The search term
     term: String,
@@ -88,6 +93,30 @@ impl GithubSearchQuery {
         self.forks = forks;
         self
     }
+}
+
+#[pymethods]
+impl GithubSearchQuery {
+    #[new]
+    pub fn new0(
+        term: String,
+        username: Option<String>,
+        filename: Option<String>,
+        language: Option<String>,
+        organization: Option<String>,
+        repository: Option<String>,
+    ) -> Self {
+        Self {
+            term,
+            username,
+            filename,
+            language,
+            organization,
+            repository,
+            forks: ForkSearchBehavior::NoForks,
+        }
+
+    }
 
     /// Build the query string for the search request
     pub fn build(&self) -> String {
@@ -98,7 +127,7 @@ impl GithubSearchQuery {
         };
 
         let filename = if let Some(filename) = self.filename.as_ref() {
-            format!("+in:{}", filename)
+            format!("+in:file+filename:{}", filename)
         } else {
             "".into()
         };
@@ -141,20 +170,20 @@ mod tests {
 
         let complex = GithubSearchQuery::new("test".into())
             .with_user("testuser".into())
-            .with_filename("readme".into())
+            .with_filename("readme.md".into())
             .build();
-        assert_eq!(complex, "test+user:testuser+in:readme");
+        assert_eq!(complex, "test+user:testuser+in:file+filename:readme.md");
 
         let more_complex = GithubSearchQuery::new("test".into())
             .with_user("testuser".into())
-            .with_filename("readme".into())
+            .with_filename("readme.md".into())
             .with_language("rust".into())
             .with_organization("testorg".into())
             .with_repository("testuser/testrepo".into())
             .build();
         assert_eq!(
             more_complex,
-            "test+user:testuser+in:readme+language:rust+org:testorg+repo:testuser/testrepo"
+            "test+user:testuser+in:file+filename:readme.md+language:rust+org:testorg+repo:testuser/testrepo"
         );
     }
 }

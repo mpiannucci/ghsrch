@@ -24,8 +24,9 @@ impl GithubClient {
     }
 
     /// Search code on GitHub with the given query
-    pub fn search_code0<'py>(&self, py: Python<'py>, term: String) -> PyResult<&'py PyAny> {
-        let query = GithubSearchQuery::new(term);
+    #[pyo3(name = "search_code")]
+    pub fn search_code0<'py>(&self, py: Python<'py>, query: GithubSearchQuery) -> PyResult<&'py PyAny> {
+        // Not ideal to do this, but clients are light enough for now 
         let other = self.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
