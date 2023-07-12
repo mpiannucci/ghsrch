@@ -98,6 +98,7 @@ impl GithubSearchQuery {
 #[pymethods]
 impl GithubSearchQuery {
     #[new]
+    #[pyo3(signature = (term, username=None, filename=None, language=None, organization=None, repository=None))]
     pub fn new0(
         term: String,
         username: Option<String>,

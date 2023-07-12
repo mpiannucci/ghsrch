@@ -16,6 +16,7 @@ pub struct GithubClient {
 impl GithubClient {
     /// Create a new GithubClient with the given api token
     #[new]
+    #[pyo3(signature = (token))]
     pub fn new(token: String) -> Self {
         Self {
             client: reqwest::Client::new(),
@@ -25,6 +26,7 @@ impl GithubClient {
 
     /// Search code on GitHub with the given query
     #[pyo3(name = "search_code")]
+    #[pyo3(signature = (query))]
     pub fn search_code0<'py>(&self, py: Python<'py>, query: GithubSearchQuery) -> PyResult<&'py PyAny> {
         // Not ideal to do this, but clients are light enough for now 
         let other = self.clone();
