@@ -11,9 +11,15 @@ async def execute_code_search(query: ghsrch.GithubSearchQuery):
     try:
         client = ghsrch.GithubClient(TOKEN)
         results = await client.search_code(query)
-        print(f'Found {len(results.items)} matches')
+        print(f'Found {results.total_count} matches')
+        for result in results.items:
+            print(f'{result.name}\t{result.repository.full_name}')
+            for match in result.text_matches:
+                print(match.fragment)
+                print("")
+            print('----------------------------------------------------------')
     except Exception as e:
-        print(f'Error fetching search')
+        print(f'Error fetching search: {e}')
 
 
 if __name__ == '__main__':
@@ -39,7 +45,5 @@ if __name__ == '__main__':
         args.org,
         args.repository
     )
-
-    print(query.build())
 
     asyncio.run(execute_code_search(query=query))
