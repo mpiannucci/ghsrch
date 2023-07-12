@@ -26,13 +26,13 @@ impl GithubClient {
 
     /// Search code on GitHub with the given query
     #[pyo3(name = "search_code")]
-    #[pyo3(signature = (query))]
-    pub fn search_code0<'py>(&self, py: Python<'py>, query: GithubSearchQuery) -> PyResult<&'py PyAny> {
+    #[pyo3(signature = (query, per_page = None, page_number = None))]
+    pub fn search_code0<'py>(&self, py: Python<'py>, query: GithubSearchQuery, per_page: Option<usize>, page_number: Option<usize>) -> PyResult<&'py PyAny> {
         // Not ideal to do this, but clients are light enough for now 
         let other = self.clone();
 
         pyo3_asyncio::tokio::future_into_py(py, async move {
-            other.search_code(&query).await.map_err(|e| e.into())
+            other.search_code(&query, per_page, page_number).await.map_err(|e| e.into())
         })
     }
 }
@@ -42,9 +42,13 @@ impl GithubClient {
     pub async fn search_code(
         &self,
         query: &GithubSearchQuery,
+        per_page: Option<usize>,
+        page_number: Option<usize>,
     ) -> Result<CodeSearchResponse, GithubClientError> {
+        let per_page = per_page.unwrap_or(30);
+        let page_number = page_number.unwrap_or(1);
         let compiled_query = query.build();
-        let url = format!("{GITHUB_API_URL}/search/code?q={compiled_query}");
+        let url = format!("{GITHUB_API_URL}/search/code?q={compiled_query}&per_page={per_page}&page={page_number}");
         
         let response = self.client
             .get(&url)

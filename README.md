@@ -38,16 +38,21 @@ Build the python library:
 maturin develop
 ```
 
-Then you can verify that the library is working:
+Then you can verify that the library is importable:
 
 ```python
 import ghsrch
-
-# TODO: Show the usage
 ```
 
-Or you can run the example command line tool:
+Or you can run the example command line tool, after setting your github token as an environment variable:
 
 ```bash
+export GITHUB_TOKEN=<your token>
+
 ghsrchr --help
+
+# example search for rust code using the zarr keyword
+ghsrchr --language=rust zarr
 ```
+
+
