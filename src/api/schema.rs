@@ -1,15 +1,17 @@
 use pyo3::pyclass;
 use serde::{Deserialize, Serialize};
 
+/// Github API REST responses https://docs.github.com/en/rest/search/search
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[pyclass]
 pub struct Author {
     #[pyo3(get)]
-    pub name: String,
+    pub name: Option<String>,
     #[pyo3(get)]
-    pub email: String,
+    pub email: Option<String>,
     #[pyo3(get)]
-    pub date: String,
+    pub date: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

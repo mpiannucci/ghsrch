@@ -52,7 +52,8 @@ export GITHUB_TOKEN=<your token>
 ghsrchr --help
 
 # example search for rust code using the zarr keyword
-ghsrchr --language=rust zarr
+python example/ghsrchr.py code --language=rust  zarr
+
+# example search commits 
+python example/ghsrchr.py commits --repo=pydata/xarray cache
 ```
-
-
