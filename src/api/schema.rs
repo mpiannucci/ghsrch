@@ -3,6 +3,17 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[pyclass]
+pub struct Author {
+    #[pyo3(get)]
+    pub name: String,
+    #[pyo3(get)]
+    pub email: String,
+    #[pyo3(get)]
+    pub date: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[pyclass]
 pub struct User {
     #[pyo3(get)]
     pub name: Option<String>,
@@ -164,6 +175,21 @@ pub struct Repository {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[pyclass]
+pub struct Commit {
+    #[pyo3(get)]
+    pub message: String,
+    #[pyo3(get)]
+    pub url: String,
+    #[pyo3(get)]
+    pub comment_count: u64,
+    #[pyo3(get)]
+    pub author: Author,
+    #[pyo3(get)]
+    pub committer: Option<Author>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[pyclass]
 pub struct CodeSearchTextMatchHighlights {
     #[pyo3(get)]
     pub text: String,
@@ -224,4 +250,42 @@ pub struct CodeSearchResponse {
     pub incomplete_results: bool,
     #[pyo3(get)]
     pub items: Vec<CodeSearchResult>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[pyclass]
+pub struct CommitSearchResult {
+    #[pyo3(get)]
+    pub url: String,
+    #[pyo3(get)]
+    pub sha: String,
+    #[pyo3(get)]
+    pub html_url: String,
+    #[pyo3(get)]
+    pub comments_url: String,
+    #[pyo3(get)]
+    pub commit: Commit,
+    #[pyo3(get)]
+    pub author: Option<User>,
+    #[pyo3(get)]
+    pub committer: Option<Author>,
+    #[pyo3(get)]
+    pub repository: Repository,
+    #[pyo3(get)]
+    pub score: f64,
+    #[pyo3(get)]
+    pub node_id: String,
+    #[pyo3(get)]
+    pub text_matches: Vec<CodeSearchTextMatch>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[pyclass]
+pub struct CommitSearchResponse {
+    #[pyo3(get)]
+    pub total_count: u64,
+    #[pyo3(get)]
+    pub incomplete_results: bool,
+    #[pyo3(get)]
+    pub items: Vec<CommitSearchResult>,
 }
